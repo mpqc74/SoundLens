@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { applyMode } from '../../src/core/modes'
+import { applyMode, DisplayMode } from '../../src/core/modes'
 
 // Raw formula outputs before mode shift.
 // Index 0 is the reference band (least loss, lowest gain = 3).
@@ -9,16 +9,16 @@ const corrections = [3, 8, 18, 23]
 
 describe('applyMode — mode shift', () => {
   it.each([
-    ['boost',          [0, 5, 15, 20]   ],
-    ['headroom-safe',  [-20, -15, -5, 0]],
+    [DisplayMode.Boost,        [0, 5, 15, 20]   ],
+    [DisplayMode.HeadroomSafe, [-20, -15, -5, 0]],
   ] as const)('%s mode shifts all values correctly', (mode, expected) => {
     expect(applyMode(corrections, mode)).toEqual(expected)
   })
 })
 
 describe('applyMode — spread invariance between modes', () => {
-  const boost = applyMode(corrections, 'boost')
-  const headroom = applyMode(corrections, 'headroom-safe')
+  const boost = applyMode(corrections, DisplayMode.Boost)
+  const headroom = applyMode(corrections, DisplayMode.HeadroomSafe)
 
   it('spread between every pair of bands is identical in both modes', () => {
     for (let i = 0; i < corrections.length; i++) {
@@ -31,8 +31,8 @@ describe('applyMode — spread invariance between modes', () => {
 
 describe('applyMode — uniform loss (all bands equal)', () => {
   it.each([
-    ['boost'],
-    ['headroom-safe'],
+    [DisplayMode.Boost],
+    [DisplayMode.HeadroomSafe],
   ] as const)('%s mode: all bands at 0', (mode) => {
     expect(applyMode([12, 12, 12, 12], mode)).toEqual([0, 0, 0, 0])
   })

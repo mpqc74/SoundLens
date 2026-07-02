@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { averageEars, applyFormula } from '../../src/core/formulas'
+import { averageEars, applyFormula, Formula } from '../../src/core/formulas'
 
 describe('averageEars', () => {
   it.each([
@@ -19,7 +19,7 @@ describe('applyFormula — ideal', () => {
     [50, 50],
     [80, 80],
   ] as const)('%i dB → %i', (loss, expected) => {
-    expect(applyFormula('ideal', loss)).toBe(expected)
+    expect(applyFormula(Formula.Ideal, loss)).toBe(expected)
   })
 })
 
@@ -30,7 +30,7 @@ describe('applyFormula — half-gain', () => {
     [40, 20],
     [80, 40],
   ] as const)('%i dB → %i', (loss, expected) => {
-    expect(applyFormula('half-gain', loss)).toBe(expected)
+    expect(applyFormula(Formula.HalfGain, loss)).toBe(expected)
   })
 })
 
@@ -51,6 +51,6 @@ describe('applyFormula — loss-adjusted (tier boundaries)', () => {
     { loss: 81,  expected: 20.25, tier: '81+ (25%) starts'    },
     { loss: 100, expected: 25,    tier: '81+ (25%)'           },
   ])('$loss dB → $expected ($tier)', ({ loss, expected }) => {
-    expect(applyFormula('loss-adjusted', loss)).toBeCloseTo(expected)
+    expect(applyFormula(Formula.LossAdjusted, loss)).toBeCloseTo(expected)
   })
 })

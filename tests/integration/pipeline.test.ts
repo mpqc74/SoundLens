@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { computeBands } from '../../src/core/pipeline'
 import type { Audiogram } from '../../src/core/pipeline'
+import { Formula } from '../../src/core/formulas'
+import { DisplayMode } from '../../src/core/modes'
 
 const ISO_10_BANDS = [31, 62, 125, 250, 500, 1000, 2000, 4000, 8000, 16000]
 
@@ -72,12 +74,12 @@ describe('Audiogram A (flat 25 dB HL, tested 250–8000 Hz)', () => {
   ]
 
   it.each([
-    ['ideal',         'boost'        ],
-    ['ideal',         'headroom-safe'],
-    ['half-gain',     'boost'        ],
-    ['half-gain',     'headroom-safe'],
-    ['loss-adjusted', 'boost'        ],
-    ['loss-adjusted', 'headroom-safe'],
+    [Formula.Ideal,        DisplayMode.Boost        ],
+    [Formula.Ideal,        DisplayMode.HeadroomSafe ],
+    [Formula.HalfGain,     DisplayMode.Boost        ],
+    [Formula.HalfGain,     DisplayMode.HeadroomSafe ],
+    [Formula.LossAdjusted, DisplayMode.Boost        ],
+    [Formula.LossAdjusted, DisplayMode.HeadroomSafe ],
   ] as const)('%s × %s', (formula, mode) => {
     expect(computeBands(audiogramA, ISO_10_BANDS, formula, mode)).toMatchObject(expected)
   })
@@ -92,7 +94,7 @@ describe('Audiogram B (ski-slope, tested 250–8000 Hz)', () => {
     // Spreads:     0      5      15→yellow 25→red   45→red   60→red
     // cappedCorrection = reference(0) + 15 = 15
     it('produces correct output for all 10 bands', () => {
-      expect(computeBands(audiogramB, ISO_10_BANDS, 'ideal', 'boost')).toMatchObject([
+      expect(computeBands(audiogramB, ISO_10_BANDS, Formula.Ideal, DisplayMode.Boost)).toMatchObject([
         ext(31), ext(62), ext(125),
         band(250,  12.5,  0, 'none',   true),
         band(500,  17.5,  5, 'none',   false),
@@ -111,7 +113,7 @@ describe('Audiogram B (ski-slope, tested 250–8000 Hz)', () => {
     // Spreads:     0        5        15→yellow  25→red    45→red    60→red
     // cappedCorrection = reference(−60) + 15 = −45
     it('produces correct output for all 10 bands', () => {
-      expect(computeBands(audiogramB, ISO_10_BANDS, 'ideal', 'headroom-safe')).toMatchObject([
+      expect(computeBands(audiogramB, ISO_10_BANDS, Formula.Ideal, DisplayMode.HeadroomSafe)).toMatchObject([
         ext(31), ext(62), ext(125),
         band(250,  12.5, -60, 'none',   true),
         band(500,  17.5, -55, 'none',   false),
@@ -128,15 +130,15 @@ describe('Audiogram B (ski-slope, tested 250–8000 Hz)', () => {
     // Half-gain = loss × 0.5. Gains: 250→6.25, 500→8.75, 1k→13.75, 2k→18.75, 4k→28.75, 8k→36.25
     // Reference: 250 Hz. Mode shift: subtract 6.25.
     // Corrections: 250→0, 500→2.5, 1000→7.5, 2000→12.5, 4000→22.5, 8000→30
-    // Spreads:     0      2.5      7.5        12.5        22.5→red   30→red
+    // Spreads:     0      2.5      7.5        12.5→yellow 22.5→red   30→red
     // cappedCorrection = reference(0) + 15 = 15
     it('produces correct output for all 10 bands', () => {
-      expect(computeBands(audiogramB, ISO_10_BANDS, 'half-gain', 'boost')).toMatchObject([
+      expect(computeBands(audiogramB, ISO_10_BANDS, Formula.HalfGain, DisplayMode.Boost)).toMatchObject([
         ext(31), ext(62), ext(125),
-        band(250,  12.5,  0,   'none', true),
-        band(500,  17.5,  2.5, 'none', false),
-        band(1000, 27.5,  7.5, 'none', false),
-        band(2000, 37.5, 12.5, 'none', false),
+        band(250,  12.5,  0,   'none',   true),
+        band(500,  17.5,  2.5, 'none',   false),
+        band(1000, 27.5,  7.5, 'none',   false),
+        band(2000, 37.5, 12.5, 'yellow', false),
         band(4000, 57.5, 22.5, 'red',  false, 15),
         band(8000, 72.5, 30,   'red',  false, 15),
         ext(16000),
@@ -147,15 +149,15 @@ describe('Audiogram B (ski-slope, tested 250–8000 Hz)', () => {
   describe('half-gain × headroom-safe', () => {
     // Mode shift: subtract max gain (36.25). Reference: 250 Hz (correction −30).
     // Corrections: 250→−30, 500→−27.5, 1000→−22.5, 2000→−17.5, 4000→−7.5, 8000→0
-    // Spreads:     0        2.5         7.5           12.5         22.5→red   30→red
+    // Spreads:     0        2.5         7.5           12.5→yellow  22.5→red   30→red
     // cappedCorrection = reference(−30) + 15 = −15
     it('produces correct output for all 10 bands', () => {
-      expect(computeBands(audiogramB, ISO_10_BANDS, 'half-gain', 'headroom-safe')).toMatchObject([
+      expect(computeBands(audiogramB, ISO_10_BANDS, Formula.HalfGain, DisplayMode.HeadroomSafe)).toMatchObject([
         ext(31), ext(62), ext(125),
-        band(250,  12.5, -30,   'none', true),
-        band(500,  17.5, -27.5, 'none', false),
-        band(1000, 27.5, -22.5, 'none', false),
-        band(2000, 37.5, -17.5, 'none', false),
+        band(250,  12.5, -30,   'none',   true),
+        band(500,  17.5, -27.5, 'none',   false),
+        band(1000, 27.5, -22.5, 'none',   false),
+        band(2000, 37.5, -17.5, 'yellow', false),
         band(4000, 57.5,  -7.5, 'red',  false, -15),
         band(8000, 72.5,    0,  'red',  false, -15),
         ext(16000),
@@ -170,7 +172,7 @@ describe('Audiogram B (ski-slope, tested 250–8000 Hz)', () => {
     // Spreads:     0      0      13.75→yellow 18.75→red   23→red     21.75→red
     // cappedCorrection = reference(0) + 15 = 15
     it('produces correct output for all 10 bands', () => {
-      expect(computeBands(audiogramB, ISO_10_BANDS, 'loss-adjusted', 'boost')).toMatchObject([
+      expect(computeBands(audiogramB, ISO_10_BANDS, Formula.LossAdjusted, DisplayMode.Boost)).toMatchObject([
         ext(31), ext(62), ext(125),
         band(250,  12.5,  0,     'none',   true),
         band(500,  17.5,  0,     'none',   false),
@@ -190,7 +192,7 @@ describe('Audiogram B (ski-slope, tested 250–8000 Hz)', () => {
     // Spreads:     0        0        13.75→yellow 18.75→red   23→red  21.75→red
     // cappedCorrection = reference(−23) + 15 = −8
     it('produces correct output for all 10 bands', () => {
-      expect(computeBands(audiogramB, ISO_10_BANDS, 'loss-adjusted', 'headroom-safe')).toMatchObject([
+      expect(computeBands(audiogramB, ISO_10_BANDS, Formula.LossAdjusted, DisplayMode.HeadroomSafe)).toMatchObject([
         ext(31), ext(62), ext(125),
         band(250,  12.5, -23,   'none',   true),
         band(500,  17.5, -23,   'none',   false),
@@ -210,8 +212,8 @@ describe('left/right averaging', () => {
   it('asymmetric inputs produce the correct averaged loss', () => {
     const asymmetric: Audiogram = { 1000: { left: 10, right: 30 } }
     const symmetric: Audiogram  = { 1000: { left: 20, right: 20 } }
-    const rA = computeBands(asymmetric, [1000], 'ideal', 'boost')
-    const rS = computeBands(symmetric,  [1000], 'ideal', 'boost')
+    const rA = computeBands(asymmetric, [1000], Formula.Ideal, DisplayMode.Boost)
+    const rS = computeBands(symmetric,  [1000], Formula.Ideal, DisplayMode.Boost)
     expect(rA[0].loss).toBeCloseTo(20)
     expect(rA[0].correction).toBeCloseTo(rS[0].correction)
   })
@@ -224,7 +226,7 @@ describe('reference band identification', () => {
       1000: { left: 10, right: 10 },
       2000: { left: 40, right: 40 },
     }
-    expect(computeBands(notch, [500, 1000, 2000], 'ideal', 'boost')).toMatchObject([
+    expect(computeBands(notch, [500, 1000, 2000], Formula.Ideal, DisplayMode.Boost)).toMatchObject([
       { hz: 500,  isReference: false },
       { hz: 1000, isReference: true  },
       { hz: 2000, isReference: false },
@@ -237,7 +239,7 @@ describe('reference band identification', () => {
       1000: { left: 10, right: 10 },
       2000: { left: 40, right: 40 },
     }
-    expect(computeBands(tied, [500, 1000, 2000], 'ideal', 'boost')).toMatchObject([
+    expect(computeBands(tied, [500, 1000, 2000], Formula.Ideal, DisplayMode.Boost)).toMatchObject([
       { hz: 500,  isReference: true  },
       { hz: 1000, isReference: true  },
       { hz: 2000, isReference: false },
@@ -247,7 +249,7 @@ describe('reference band identification', () => {
 
 describe('cappedCorrection invariant', () => {
   it('cappedCorrection is defined only on red-warning bands', () => {
-    const results = computeBands(audiogramB, ISO_10_BANDS, 'ideal', 'boost')
+    const results = computeBands(audiogramB, ISO_10_BANDS, Formula.Ideal, DisplayMode.Boost)
     results.forEach(r => {
       if (r.warning !== 'red') expect(r.cappedCorrection).toBeUndefined()
       else expect(r.cappedCorrection).toBeDefined()
@@ -257,8 +259,8 @@ describe('cappedCorrection invariant', () => {
 
 describe('formula switch', () => {
   it('changes corrections but not loss values', () => {
-    const rIdeal = computeBands(audiogramB, ISO_10_BANDS, 'ideal',     'boost')
-    const rHalf  = computeBands(audiogramB, ISO_10_BANDS, 'half-gain', 'boost')
+    const rIdeal = computeBands(audiogramB, ISO_10_BANDS, Formula.Ideal,    DisplayMode.Boost)
+    const rHalf  = computeBands(audiogramB, ISO_10_BANDS, Formula.HalfGain, DisplayMode.Boost)
     rIdeal.forEach((band, i) => expect(band.loss).toBeCloseTo(rHalf[i].loss))
     const i1000 = ISO_10_BANDS.indexOf(1000)
     expect(rIdeal[i1000].correction).not.toBeCloseTo(rHalf[i1000].correction)
@@ -267,8 +269,8 @@ describe('formula switch', () => {
 
 describe('mode switch', () => {
   it('shifts all corrections vertically but preserves pairwise spread', () => {
-    const boost    = computeBands(audiogramB, ISO_10_BANDS, 'ideal', 'boost')
-    const headroom = computeBands(audiogramB, ISO_10_BANDS, 'ideal', 'headroom-safe')
+    const boost    = computeBands(audiogramB, ISO_10_BANDS, Formula.Ideal, DisplayMode.Boost)
+    const headroom = computeBands(audiogramB, ISO_10_BANDS, Formula.Ideal, DisplayMode.HeadroomSafe)
     for (let i = 0; i < boost.length; i++) {
       for (let j = 0; j < boost.length; j++) {
         expect(boost[i].correction - boost[j].correction)
