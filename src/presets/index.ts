@@ -4,6 +4,7 @@ export type Preset = {
   bands: number[]
   rangeMin: number
   rangeMax: number
+  gridInterval: number
 }
 
 export const iso10: Preset = {
@@ -12,6 +13,7 @@ export const iso10: Preset = {
   bands: [31, 62, 125, 250, 500, 1000, 2000, 4000, 8000, 16000],
   rangeMin: -12,
   rangeMax: 12,
+  gridInterval: 3,
 }
 
 export const sony7: Preset = {
@@ -20,6 +22,7 @@ export const sony7: Preset = {
   bands: [125, 250, 500, 1000, 2000, 4000, 8000],
   rangeMin: -12,
   rangeMax: 12,
+  gridInterval: 3,
 }
 
 export const tcl7: Preset = {
@@ -28,6 +31,7 @@ export const tcl7: Preset = {
   bands: [100, 200, 500, 1000, 2000, 5000, 10000],
   rangeMin: -10,
   rangeMax: 10,
+  gridInterval: 5,
 }
 
 export const tesla5: Preset = {
@@ -36,6 +40,7 @@ export const tesla5: Preset = {
   bands: [30, 100, 350, 1300, 5500],
   rangeMin: -8,
   rangeMax: 8,
+  gridInterval: 4,
 }
 
 export const presets: Preset[] = [iso10, sony7, tcl7, tesla5]
