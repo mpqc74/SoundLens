@@ -1,32 +1,69 @@
-# React + TypeScript + Vite
+# SoundLens
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Turn your audiogram into equalizer settings — no new equipment required.
 
-Currently, two official plugins are available:
+## What it does
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+SoundLens takes the hearing thresholds from your audiogram and converts them into suggested equalizer adjustments for the TV, computer, or car audio you already own. Everything runs in your browser; no data is ever sent anywhere.
 
-## React Compiler
+It is not a clinical tool. The suggestions are starting points — trust your ears and keep adjusting from there.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Live demo
 
-## Expanding the Oxlint configuration
+[https://mpqc74.github.io/SoundLens/](https://mpqc74.github.io/SoundLens/)
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## How to use it
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+1. Enter your audiogram thresholds (left and right ear, per frequency)
+2. Choose the EQ preset that matches your device (TV, computer, Tesla, etc.)
+3. Pick a calculation formula (Ideal, Half-gain, or Loss-adjusted)
+4. Read the suggested dB value for each band and dial them into your equalizer
+
+You can switch between **Boost mode** (all corrections are positive relative to your best-hearing frequency) and **Headroom-safe mode** (all corrections are zero or negative) depending on your device's volume headroom.
+
+Bands outside your tested frequency range are extrapolated and shown as estimates.
+
+## Privacy
+
+All computation happens in your browser. Your audiogram data is never sent to any server.
+
+## Development
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### Install
+
+```bash
+npm install
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+### Run locally
+
+```bash
+npm run dev
+```
+
+### Run tests
+
+```bash
+npm test              # unit + integration tests
+npm run test:e2e      # browser-driven acceptance tests
+npm run test:coverage # coverage report
+```
+
+### Build
+
+```bash
+npm run build
+```
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+## Acknowledgements
+
+Built as a capstone project for the [AI Fluency Framework Foundations](https://anthropic.skilljar.com/ai-fluency-framework-foundations) course by Anthropic.

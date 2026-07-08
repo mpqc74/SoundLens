@@ -1,7 +1,14 @@
 {
   "name": "soundlens",
-  "private": true,
   "version": "0.0.0",
+  "description": "Client-side audiogram-to-equalizer advisor — convert your hearing test results into suggested EQ settings for TV, computer, or car audio",
+  "license": "MIT",
+  "homepage": "https://mpqc74.github.io/SoundLens/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mpqc74/SoundLens.git"
+  },
+  "keywords": ["audiogram", "equalizer", "hearing-loss", "accessibility", "audio", "eq"],
   "type": "module",
   "scripts": {
     "dev": "vite",
