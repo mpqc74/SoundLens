@@ -10,14 +10,14 @@ interface Props {
 }
 
 export default function EqGraphic({ bands, preset }: Props) {
-  const { rangeMin, rangeMax, gridInterval } = preset
-  const range = rangeMax - rangeMin
-  const zeroTop = ((rangeMax - 0) / range) * TRACK_HEIGHT
+  const { range, gridInterval } = preset
+  const totalSpan = range * 2
+  const zeroTop = (range / totalSpan) * TRACK_HEIGHT
 
   const refCorrection = bands.find(b => b.isReference)?.correction ?? 0
 
   const gridValues: number[] = []
-  for (let v = gridInterval; v < rangeMax; v += gridInterval) {
+  for (let v = gridInterval; v < range; v += gridInterval) {
     gridValues.push(v)
     gridValues.push(-v)
   }
@@ -25,18 +25,18 @@ export default function EqGraphic({ bands, preset }: Props) {
   return (
     <div className="eq-graphic" aria-label="Equalizer settings">
       <div className="eq-scale" style={{ height: TRACK_HEIGHT }}>
-        <span className="eq-scale-label" style={{ top: 0 }}>{rangeMax} dB</span>
+        <span className="eq-scale-label" style={{ top: 0 }}>{range} dB</span>
         {gridValues.map(val => (
           <span
             key={val}
             className="eq-scale-label eq-scale-label--minor"
-            style={{ top: ((rangeMax - val) / range) * TRACK_HEIGHT }}
+            style={{ top: ((range - val) / totalSpan) * TRACK_HEIGHT }}
           >
             {val > 0 ? `+${val}` : val}
           </span>
         ))}
         <span className="eq-scale-label" style={{ top: zeroTop }}>0</span>
-        <span className="eq-scale-label" style={{ bottom: 0 }}>{rangeMin} dB</span>
+        <span className="eq-scale-label" style={{ bottom: 0 }}>{-range} dB</span>
       </div>
 
       <div className="eq-bands-area">
@@ -44,7 +44,7 @@ export default function EqGraphic({ bands, preset }: Props) {
           <div
             key={val}
             className="eq-gridline"
-            style={{ top: ((rangeMax - val) / range) * TRACK_HEIGHT }}
+            style={{ top: ((range - val) / totalSpan) * TRACK_HEIGHT }}
             aria-hidden
           />
         ))}
@@ -58,8 +58,7 @@ export default function EqGraphic({ bands, preset }: Props) {
             <EqBand
               key={band.hz}
               band={band}
-              rangeMin={rangeMin}
-              rangeMax={rangeMax}
+              range={range}
               refCorrection={refCorrection}
             />
           ))}

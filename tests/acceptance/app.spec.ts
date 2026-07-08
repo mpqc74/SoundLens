@@ -91,18 +91,18 @@ test('mode switch shifts values while preserving relative spreads', async ({ pag
   await page.getByTestId('mode-selector').click()
   await page.getByTestId('mode-option-headroom-safe').click()
 
-  // HeadroomSafe: pivot = max(20,15,5,15,20,25) = 25
-  // 8000→0.0, 1000→-20.0, 250→-5.0
-  await expect(page.getByTestId('band-knob-8000')).toHaveAttribute('data-value', '0.0')
-  await expect(page.getByTestId('band-knob-1000')).toHaveAttribute('data-value', '-20.0')
-  await expect(page.getByTestId('band-knob-250')).toHaveAttribute('data-value', '-5.0')
+  // HeadroomSafe: half-gain corrections [20,15,5,15,20,25], spread=20 > range(12) → overflow rescue
+  // pivot = min(25, 5+12) = 17 → shifted: 8000→8.0, 1000→-12.0, 250→3.0
+  await expect(page.getByTestId('band-knob-8000')).toHaveAttribute('data-value', '8.0')
+  await expect(page.getByTestId('band-knob-1000')).toHaveAttribute('data-value', '-12.0')
+  await expect(page.getByTestId('band-knob-250')).toHaveAttribute('data-value', '3.0')
 })
 
 // ── Test 4: red warning when spread > 15 dB ──────────────────
 
 test('red warning appears when spread exceeds 15 dB', async ({ page }) => {
   // 4000 Hz: avg 60, half-gain 30; others 0 → spread 30 > 15 → red
-  // cappedCorrection = 0 + 15 = 15 dB > rangeMax 12 → capped knob suppressed (not achievable)
+  // cappedCorrection = 0 + 15 = 15 dB > range(12) → capped knob suppressed (not achievable)
   // Red warning shown via limit knob + red overflow chevron instead
   await fillAudiogram(page, {
     250:  { left: 0, right: 0 },
@@ -120,7 +120,7 @@ test('red warning appears when spread exceeds 15 dB', async ({ page }) => {
   await expect(page.getByTestId('band-knob-capped-4000')).not.toBeVisible()
   await expect(page.getByTestId('band-knob-limit-4000')).toBeVisible()
   await expect(page.getByTestId('band-overflow-chevron-4000')).toBeVisible()
-  // Limit knob sits at 12 dB (iso10 rangeMax); its spread = 12 − 0 = 12 → yellow, not red
+  // Limit knob sits at 12 dB (iso10 range); its spread = 12 − 0 = 12 → yellow, not red
   await expect(page.getByTestId('band-knob-limit-4000')).toHaveAttribute('data-warning', 'yellow')
 })
 
@@ -198,7 +198,7 @@ test('limit knob and overflow chevron appear when correction exceeds EQ range', 
   // Tesla preset (±8 dB) + Ideal formula
   // Audiogram: 0 dB except 4000 Hz at 20 dB
   // 5500 Hz band interpolates between 4000=20 and 8000=0 → ~11.7 dB ideal correction
-  // 11.7 dB > rangeMax(8) → out of range
+  // 11.7 dB > range(8) → out of range
 
   // Fill audiogram first — preset selector only appears once ≥2 frequencies are entered
   await fillAudiogram(page, {
@@ -217,14 +217,14 @@ test('limit knob and overflow chevron appear when correction exceeds EQ range', 
   await page.getByTestId('mode-selector').click()
   await page.getByTestId('mode-option-boost').click()
 
-  // Limit knob at rangeMax and overflow chevron must be visible
+  // Limit knob at range boundary and overflow chevron must be visible
   await expect(page.getByTestId('band-knob-limit-5500')).toBeVisible()
   await expect(page.getByTestId('band-overflow-chevron-5500')).toBeVisible()
 
   // Primary knob is replaced — not visible (kept in DOM for data-value access)
   await expect(page.getByTestId('band-knob-5500')).not.toBeVisible()
 
-  // Limit knob sits at 8 dB (Tesla rangeMax); its spread = 8 − 0 = 8 → none, not red
+  // Limit knob sits at 8 dB (Tesla range); its spread = 8 − 0 = 8 → none, not red
   await expect(page.getByTestId('band-knob-limit-5500')).toHaveAttribute('data-warning', 'none')
 })
 

@@ -31,7 +31,7 @@ export default function App() {
   const bands = useMemo(
     () =>
       hasAudiogram
-        ? computeBands(audiogram, preset.bands, formula, mode, preset.rangeMin)
+        ? computeBands(audiogram, preset.bands, formula, mode, preset.range)
         : [],
     [audiogram, formula, mode, preset, hasAudiogram]
   )

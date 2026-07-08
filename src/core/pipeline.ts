@@ -16,14 +16,14 @@ export type BandResult = {
 }
 
 // Returns the pivot for HeadroomSafe mode.
-// Normally the highest correction sits at 0 dB. When the spread exceeds |rangeMin|,
-// the anchor floats up just enough to keep the lowest band at rangeMin.
+// Normally the highest correction sits at 0 dB. When the spread exceeds range,
+// the anchor floats up just enough to keep the lowest band at -range.
 export function computeHeadroomPivot(
   rawMax: number,
   rawMin: number,
-  rangeMin: number,
+  range: number,
 ): number {
-  return Math.min(rawMax, rawMin - rangeMin)
+  return Math.min(rawMax, rawMin + range)
 }
 
 export function computeBands(
@@ -31,7 +31,7 @@ export function computeBands(
   bandHzList: number[],
   formula: Formula,
   mode: DisplayMode,
-  rangeMin: number,
+  range: number,
 ): BandResult[] {
   const audiogramPoints: FrequencyPoint[] = Object.entries(audiogram)
     .map(([hz, ears]) => ({ hz: Number(hz), loss: averageEars(ears.left, ears.right) }))
@@ -44,7 +44,7 @@ export function computeBands(
   // Mode shift anchor is derived from non-extrapolated bands only
   const inRangeCorrections = rawCorrections.filter((_, i) => !extrapolated[i])
   const pivot = mode === DisplayMode.HeadroomSafe
-    ? computeHeadroomPivot(Math.max(...inRangeCorrections), Math.min(...inRangeCorrections), rangeMin)
+    ? computeHeadroomPivot(Math.max(...inRangeCorrections), Math.min(...inRangeCorrections), range)
     : Math.min(...inRangeCorrections)
   const shifted = rawCorrections.map(c => c - pivot)
 

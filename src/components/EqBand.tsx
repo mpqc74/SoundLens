@@ -4,37 +4,35 @@ import { formatHz } from '../utils'
 const TRACK_HEIGHT = 200
 const KNOB_R = 12
 
-function knobTop(value: number, rangeMin: number, rangeMax: number): number {
-  const range = rangeMax - rangeMin
-  const clamped = Math.max(rangeMin, Math.min(rangeMax, value))
-  return ((rangeMax - clamped) / range) * TRACK_HEIGHT
+function knobTop(value: number, range: number): number {
+  const clamped = Math.max(-range, Math.min(range, value))
+  return ((range - clamped) / (2 * range)) * TRACK_HEIGHT
 }
 
 interface Props {
   band: BandResult
-  rangeMin: number
-  rangeMax: number
+  range: number
   refCorrection: number
 }
 
-export default function EqBand({ band, rangeMin, rangeMax, refCorrection }: Props) {
+export default function EqBand({ band, range, refCorrection }: Props) {
   const { hz, correction, warning, isReference, isExtrapolated, cappedCorrection } = band
 
-  const isClippedHigh = correction > rangeMax
-  const isClippedLow = correction < rangeMin
+  const isClippedHigh = correction > range
+  const isClippedLow = correction < -range
   const isClipped = isClippedHigh || isClippedLow
 
-  const primaryTop = knobTop(correction, rangeMin, rangeMax)
+  const primaryTop = knobTop(correction, range)
   const cappedTop = cappedCorrection !== undefined
-    ? knobTop(cappedCorrection, rangeMin, rangeMax)
+    ? knobTop(cappedCorrection, range)
     : null
 
   const limitTop = isClippedHigh ? 0 - KNOB_R : TRACK_HEIGHT - KNOB_R
 
   const cappedAlsoClipped = cappedTop !== null && isClipped && (
     isClippedHigh
-      ? (cappedCorrection as number) >= rangeMax
-      : (cappedCorrection as number) <= rangeMin
+      ? (cappedCorrection as number) >= range
+      : (cappedCorrection as number) <= -range
   )
 
   const warningColor = warning === 'red' ? '#dc2626' : warning === 'yellow' ? '#d97706' : '#9ca3af'
@@ -45,7 +43,7 @@ export default function EqBand({ band, rangeMin, rangeMax, refCorrection }: Prop
     isExtrapolated ? 'eq-knob--dim' : '',
   ].filter(Boolean).join(' ')
 
-  const limitSpread = isClippedHigh ? rangeMax - refCorrection : rangeMin - refCorrection
+  const limitSpread = isClippedHigh ? range - refCorrection : -range - refCorrection
   const limitWarning: 'red' | 'yellow' | 'none' =
     limitSpread > 15 ? 'red' : limitSpread > 10 ? 'yellow' : 'none'
 
@@ -123,7 +121,7 @@ export default function EqBand({ band, rangeMin, rangeMax, refCorrection }: Prop
               data-testid={`band-knob-limit-${hz}`}
               data-value={correction.toFixed(1)}
               data-warning={limitWarning}
-              aria-label={`${formatHz(hz)} Hz: computed ${correction.toFixed(1)} dB — EQ limit is ${isClippedHigh ? rangeMax : rangeMin} dB`}
+              aria-label={`${formatHz(hz)} Hz: computed ${correction.toFixed(1)} dB — EQ limit is ${isClippedHigh ? range : -range} dB`}
             >
               {icons}
             </div>
