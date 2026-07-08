@@ -13,7 +13,7 @@ In building SoundLens (a tool that converts audiogram values into equalizer sett
 
 My review was concentrated on **code correctness, test integrity, and UI behavior** — not on validating the underlying hearing-correction math against real-world data. Specifically, I:
 
-- Read generated code and tests directly (in-IDE and in the terminal) and caught issues Claude's own reasoning had missed — a TypeScript enum incompatibility flagged by IntelliJ, a `computeBands` signature using strings instead of the proper enum types, and a source-attribution error where a plan section was read from the wrong document.
+- Read generated code and tests directly (in-IDE and in the terminal) and caught issues Claude's own reasoning had missed — a TypeScript enum incompatibility flagged by IntelliJ, a `computeBands` signature using strings instead of the proper enum types, a source-attribution error where a plan section was read from the wrong document, and a factual error in AI-generated web research (a search agent incorrectly reported that Spotify desktop had no equalizer, which a screenshot disproved).
 - Identified structural problems in the test suite on my own reading — duplicated coverage between `interpolation.test.ts` and `extrapolation.test.ts`, an integration test that should have been a single functional pass rather than granular per-band assertions, and a spec ambiguity (`>` vs. `>=`) in the spread-warning boundary, which I resolved explicitly ("strictly greater than").
 - Verified UI behavior by running the app and inspecting it visually — catching a knob-color mismatch (yellow rendering as orange), a disappearing warning icon on extrapolated bands, and a misaligned dropdown — then confirming proposed fixes before they were implemented.
 - Confirmed an incomplete implementation phase by cross-checking the plan document directly, after suspecting we'd only partially completed it.
@@ -26,7 +26,10 @@ My review was concentrated on **code correctness, test integrity, and UI behavio
 - Directed the use of proper enums (`Formula`, `DisplayMode`) in place of string/magic values, and scoped one test refactor (`toBeCloseTo` → `toBe`) to a single file rather than applying it project-wide.
 - Directed a full restructuring of the integration test suite toward functional, full-output assertions.
 - Made product decisions with no prior AI proposal: setting "headroom-safe" as the default mode, initializing the audiogram to a flat 0 dB baseline on startup, and articulating the underlying principle that knob color should follow the knob's position rather than a fixed rule.
-- Added a `gridInterval` field to all four EQ presets directly via file edit.
+- Added a `gridInterval` field to all four original EQ presets directly via file edit, and later initiated the addition of a fifth preset (Spotify 6-band).
+- Identified a flaw in the HeadroomSafe mode algorithm: when hearing-loss spread exceeds the EQ's physical range, anchoring the highest correction band at 0 dB pushes all lower bands below the EQ minimum, making the output useless. Directed the fix — a floating anchor that rises above 0 dB only as much as needed to keep the lowest band at the floor of the EQ range.
+- Directed simplification of the preset data model: noticed that all EQ presets define symmetric ranges (±N dB), so the separate `rangeMin` and `rangeMax` fields were redundant. Replaced both with a single `range` value across the preset type, components, pipeline, and tests.
+- Initiated the addition of a Spotify 6-band EQ preset and caught an AI research error in the process: a web-search agent incorrectly reported that the Spotify desktop app has no built-in equalizer. Verified with a screenshot that it does — using the same 6 bands and ±12 dB range as the iOS app — which led to removing "mobile" from the preset name.
 
 ## Accountability
 
