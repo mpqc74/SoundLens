@@ -38,4 +38,12 @@ export const tesla5: Preset = {
   gridInterval: 4,
 }
 
-export const presets: Preset[] = [iso10, sony7, tcl7, tesla5]
+export const spotify6: Preset = {
+  id: 'spotify6',
+  name: 'Spotify — 6-band',
+  bands: [60, 150, 400, 1000, 2400, 15000],
+  range: 12,
+  gridInterval: 3,
+}
+
+export const presets: Preset[] = [iso10, sony7, tcl7, tesla5, spotify6]
