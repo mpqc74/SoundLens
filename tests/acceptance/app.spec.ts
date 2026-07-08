@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { hzToX, dbToY, snapDb } from '../../src/core/audiogramGrid'
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -6,13 +7,25 @@ async function dismissInfo(page: Page) {
   await page.getByTestId('info-dismiss').click()
 }
 
+async function placeMarker(page: Page, ear: 'left' | 'right', hz: number, db: number) {
+  const locator = page.getByTestId(`audiogram-plot-${ear}`)
+  await locator.scrollIntoViewIfNeeded()
+  const box = await locator.boundingBox()
+  if (!box) throw new Error(`audiogram-plot-${ear} not visible`)
+  const x = box.x + hzToX(hz)
+  const y = box.y + dbToY(snapDb(db))
+  await page.mouse.move(x, y)
+  await page.mouse.down()
+  await page.mouse.up()
+}
+
 async function fillAudiogram(
   page: Page,
   values: Partial<Record<number, { left: number; right: number }>>,
 ) {
   for (const [hz, ears] of Object.entries(values) as [string, { left: number; right: number }][]) {
-    await page.getByTestId(`input-left-${hz}`).fill(String(ears.left))
-    await page.getByTestId(`input-right-${hz}`).fill(String(ears.right))
+    await placeMarker(page, 'left', Number(hz), ears.left)
+    await placeMarker(page, 'right', Number(hz), ears.right)
   }
 }
 

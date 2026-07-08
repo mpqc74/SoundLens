@@ -68,9 +68,9 @@
   opacity: 0.88;
 }
 
-/* ── Audiogram input ────────────────────────────────────────── */
+/* ── Audiogram graphic ──────────────────────────────────────── */
 
-.audiogram-input h2 {
+.audiogram-graphic h2 {
   margin: 0 0 6px;
 }
 
@@ -78,51 +78,196 @@
   color: var(--text);
   font-size: 15px;
   margin-bottom: 16px;
+  max-width: 640px;
 }
 
-.audiogram-table {
-  border-collapse: collapse;
+.audiogram-charts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+}
+
+.audiogram-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.audiogram-chart-title {
+  margin: 0;
   font-size: 15px;
+  font-weight: 600;
 }
 
-.audiogram-table th {
-  text-align: left;
-  padding: 6px 16px 6px 0;
-  font-weight: 500;
+.audiogram-chart-title--right {
+  color: var(--ear-right);
+}
+
+.audiogram-chart-title--left {
+  color: var(--ear-left);
+}
+
+.audiogram-grid-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.audiogram-grid-row {
+  display: flex;
+}
+
+.audiogram-scale {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.audiogram-scale-label {
+  position: absolute;
+  right: 6px;
+  transform: translateY(-50%);
+  font-size: 11px;
   color: var(--text);
-  border-bottom: 1px solid var(--border);
-}
-
-.audiogram-table td {
-  padding: 6px 16px 6px 0;
-  vertical-align: middle;
-}
-
-.audiogram-freq {
-  color: var(--text-h);
-  font-weight: 500;
-  min-width: 80px;
-}
-
-.audiogram-field {
-  width: 80px;
-  padding: 5px 8px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  font-size: 15px;
   font-family: var(--mono);
+  white-space: nowrap;
+}
+
+.audiogram-plot {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+/* Octave-frequency (vertical) and 10 dB HL (horizontal) gridlines share the same
+   weight per ASHA's "equal darkness and thickness" convention — see CLAUDE.md. */
+.audiogram-gridline-h {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* 0 dB HL is the reference line — drawn wider and darker than the plain
+   10 dB gridlines so it stands out. */
+.audiogram-gridline-h--zero {
+  height: 2px;
+  background: var(--text-h);
+  opacity: 1;
+  z-index: 1;
+}
+
+.audiogram-gridline-v {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.audiogram-gridline-v--minor {
+  opacity: 0.25;
+}
+
+.audiogram-freq-axis {
+  position: relative;
+  height: 16px;
+}
+
+.audiogram-freq-label {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.audiogram-freq-label--minor {
+  opacity: 0.55;
+  font-size: 9px;
+}
+
+.audiogram-line-segment {
+  position: absolute;
+  height: 2px;
+  transform-origin: left center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.audiogram-line-segment--right {
+  background: var(--ear-right);
+}
+
+.audiogram-line-segment--left {
+  background: var(--ear-left);
+}
+
+.audiogram-marker {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  z-index: 2;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.audiogram-marker--right {
+  border: 2px solid var(--ear-right);
+  border-radius: 50%;
+  background: transparent;
+}
+
+.audiogram-marker--left::before,
+.audiogram-marker--left::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--ear-left);
+}
+
+.audiogram-marker--left::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.audiogram-marker--left::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.audiogram-marker-delete {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
   background: var(--bg);
   color: var(--text-h);
+  font-size: 11px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0;
+  z-index: 3;
 }
 
-.audiogram-field--error {
-  border-color: #dc2626;
-}
-
-.audiogram-error {
-  color: #dc2626;
-  font-size: 12px;
-  margin-left: 6px;
+.audiogram-marker:hover .audiogram-marker-delete,
+.audiogram-marker:focus-within .audiogram-marker-delete {
+  opacity: 1;
 }
 
 /* ── EQ section ─────────────────────────────────────────────── */

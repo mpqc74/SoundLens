@@ -4,7 +4,7 @@ import { Formula, type Formula as FormulaType } from './core/formulas'
 import { DisplayMode, type DisplayMode as DisplayModeType } from './core/modes'
 import { iso10, type Preset } from './presets/index'
 import InfoMessage from './components/InfoMessage'
-import AudiogramInput from './components/AudiogramInput'
+import AudiogramGraphic from './components/AudiogramGraphic'
 import PresetSelector from './components/PresetSelector'
 import FormulaSelector from './components/FormulaSelector'
 import ModeSelector from './components/ModeSelector'
@@ -13,14 +13,7 @@ import EqGraphic from './components/EqGraphic'
 import './App.css'
 
 export default function App() {
-  const [audiogram, setAudiogram] = useState<Audiogram>({
-    250: { left: 0, right: 0 },
-    500: { left: 0, right: 0 },
-    1000: { left: 0, right: 0 },
-    2000: { left: 0, right: 0 },
-    4000: { left: 0, right: 0 },
-    8000: { left: 0, right: 0 },
-  })
+  const [audiogram, setAudiogram] = useState<Audiogram>({})
   const [formula, setFormula] = useState<FormulaType>(Formula.HalfGain)
   const [mode, setMode] = useState<DisplayModeType>(DisplayMode.HeadroomSafe)
   const [preset, setPreset] = useState<Preset>(iso10)
@@ -46,7 +39,7 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        <AudiogramInput onAudiogramChange={setAudiogram} />
+        <AudiogramGraphic onAudiogramChange={setAudiogram} />
 
         {hasAudiogram && (
           <section className="eq-section">

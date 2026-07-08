@@ -69,6 +69,21 @@ The spread between any two bands is identical in both modes.
 - "Reference" text label beneath that band's frequency tick.
 - If multiple bands tie for least loss, all tied bands receive both the icon and the label.
 
+### Audiogram chart grid conventions
+
+Source: ASHA, ["Guidelines for Audiometric Symbols"](https://www.asha.org/policy/gl1990-00006/) (1990,
+policy doc `GL1990-00006`) — a standalone ASHA policy guideline, not part of a larger manual.
+
+- Grid lines are of equal darkness and thickness at octave frequency intervals (X-axis) and at
+  10 dB HL intervals (Y-axis) — the two axes' gridlines should look visually consistent with each
+  other, not just internally among themselves.
+- The 0 dB HL line is the one deliberate exception: it must be shown prominently so it stands out
+  from the other HL grid lines. The exact rendering technique isn't specified by ASHA; this project
+  renders it wider and darker than the plain 10 dB gridlines (project owner rejected the
+  "railroad track" flanking-lines variant tried earlier — plain weight/color emphasis only).
+- This governs the interactive audiogram entry charts (`AudiogramEarChart.tsx`), not the equalizer
+  output graphic (`EqGraphic.tsx`), which has its own separate visual language.
+
 ### Out-of-range frequencies
 
 - Extrapolation method: trend-based — continue the slope of the last two tested points outward.
